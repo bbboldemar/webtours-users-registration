@@ -1,0 +1,3 @@
+# webtours-users-registration
+Simplest script (or not) to register a bunch of users in WebTours sample application.
+Now it's something not so simple...
