@@ -1,25 +1,64 @@
-import requests
-port = int(input('Номер порта: '))
-user_base_size = int(input('Количество пользователей: '))
-sign_up = 'http://localhost:'+str(port)+'/cgi-bin/login.pl'
+def install_and_import(package):
+    import importlib
+    try:
+        importlib.import_module(package)
+    except ImportError:
+        import pip
+        pip.main(['install', package])
+    finally:
+        globals()[package] = importlib.import_module(package)
 
 
-try:
-    for i in range (1, user_base_size + 1):
-        new_user = {
-        'username' : 'user'+str(i),
-        'password' : 'pass'+str(i),
-        'passwordConfirm' : 'pass'+str(i),
-        'firstName' : 'FirstName'+str(i),
-        'lastName' : 'LastName'+str(i),
-        'address1' : 'Str'+str(i),
-        'address2' :'0'+str(i),
-        'register.x' : '26',
-        'register.y' : '1'}
-        requests.post(sign_up, new_user)
-        print ('user № ' + str(i) + ' created')
-    print (new_user['username'])
-    print (new_user['password'])
-    print ('Типовой логин/пароль: user*/pass*, где * - цифра от 1 до введеного колличества пользователей.')
-except:
-    print ('Некорректные введенные данные')    
+def settings(port, localhost):          
+        if port == "":
+            port = '1080'
+        print ('port: {}'.format(port))
+        
+        if localhost == "":
+            localhost = 'localhost'
+        print ('url: {}'.format(localhost))
+        return {'localhost':localhost, 'port':port}
+
+if __name__ == "__main__":
+    try:
+        import requests
+    except:
+        install = input('Install Requests — 3-rd party library for Python (Y/N)?')
+        if install == "y" or install == "Y":
+            install_and_import('requests')
+        else:
+            print ('Exit')
+            raise SystemExit
+        
+    port = input('port: (by default "1080", press enter to skip)')
+    localhost = input('server url: (by default "localhost", press enter to skip)')
+    user_base_size = input('Number of created users: ')
+    
+    data = settings(port, localhost)
+    sign_up = 'http://{}:{}/cgi-bin/login.pl'.format(data['localhost'], data['port'])
+    welcome_page = 'http://{}:{}/webtours/'.format(data['localhost'], data['port'])
+    try:
+        requests.get(welcome_page)
+    except:
+        print ("Can't reach 'WebTours' server")
+        raise SystemExit
+        
+    try:
+        user_base_size = int(user_base_size)
+        for i in range (1, user_base_size + 1):
+            new_user = {
+            'username' : 'user{}'.format(i),
+            'password' : 'pass{}'.format(i),
+            'passwordConfirm' : 'pass{}'.format(i),
+            'firstName' : 'FirstName{}'.format(i),
+            'lastName' : 'LastName{}'.format(i),
+            'address1' : 'City{}'.format(i),
+            'address2' :'Str{}'.format(i),
+            'register.x' : '1',
+            'register.y' : '1'}
+            requests.post(sign_up, new_user)
+            print ('User №{} created. Login/Password: user{}/pass{}'.format(i, i, i))
+        print ('Users created!')
+    except:
+        print ('Your "number of created users" is not a number')
+        
