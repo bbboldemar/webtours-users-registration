@@ -3,8 +3,11 @@ def install_and_import(package):
     try:
         importlib.import_module(package)
     except ImportError:
-        import pip
-        pip.main(['install', package])
+        import subprocess
+        import sys
+        subprocess.check_call(
+            [sys.executable, "-m", "pip", "install", package]
+        )
     finally:
         globals()[package] = importlib.import_module(package)
 
