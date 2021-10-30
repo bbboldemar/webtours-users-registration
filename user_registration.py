@@ -27,7 +27,7 @@ if __name__ == "__main__":
         import requests
     except:
         install = input('Install Requests — 3-rd party library for Python (Y/N)?')
-        if install == "y" or install == "Y":
+        if install in ["y", "Y", ""]:
             install_and_import('requests')
         else:
             print ('Exit')
